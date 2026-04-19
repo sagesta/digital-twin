@@ -11,7 +11,7 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  description = "Azure region for all resources. Azure for Students often restricts regions; try eastus if apply fails with RequestDisallowedByAzure. Confirm gpt-4o quota before apply."
+  description = "Azure region for all resources. Azure for Students commonly allows: eastus, westus, centralus, westeurope, southeastasia (use these slugs, not e.g. westus2). Confirm gpt-4o quota before apply."
   default     = "eastus"
 }
 

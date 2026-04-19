@@ -3,7 +3,7 @@
 # Usage:
 #   export TF_STATE_RG="terraform-state-rg"
 #   export TF_STATE_STORAGE_ACCOUNT="tfstateYOURUNIQUE12"   # 3-24 chars, lowercase letters+numbers only, globally unique
-#   export TF_STATE_LOCATION="westus2"                     # optional
+#   export TF_STATE_LOCATION="eastus"                      # optional (use a Students-allowed region slug)
 #   ./scripts/bootstrap-remote-state.sh
 #
 # Then uncomment backend.tf, fill in the printed values, and from infra/ run:
@@ -12,7 +12,7 @@ set -euo pipefail
 
 TF_STATE_RG="${TF_STATE_RG:-terraform-state-rg}"
 TF_STATE_STORAGE_ACCOUNT="${TF_STATE_STORAGE_ACCOUNT:-}"
-TF_STATE_LOCATION="${TF_STATE_LOCATION:-westus2}"
+TF_STATE_LOCATION="${TF_STATE_LOCATION:-eastus}"
 CONTAINER="${TF_STATE_CONTAINER:-tfstate}"
 STATE_KEY="${TF_STATE_KEY:-digital-twin.terraform.tfstate}"
 

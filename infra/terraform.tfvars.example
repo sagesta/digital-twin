@@ -3,7 +3,13 @@
 
 # Optional overrides:
 # resource_group_name       = "digital-twin-rg"
-# location                  = "eastus"
+# Azure for Students–friendly regions (slugs):
+# location = "eastus"          # East US
+# location = "westus"        # West US
+# location = "centralus"    # Central US
+# location = "westeurope"   # West Europe
+# location = "southeastasia" # Southeast Asia
+# Default in variables.tf is eastus if you omit this.
 # enable_azure_front_door   = false   # required false on Azure for Students / Free Trial
 # project_name              = "digitaltwin"
 # environment               = "dev"
