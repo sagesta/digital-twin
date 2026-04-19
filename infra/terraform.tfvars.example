@@ -4,8 +4,8 @@
 # GitHub Actions: set repository variable AZURE_LOCATION (e.g. westeurope) to match
 # Azure Policy "allowed locations"; if unset, CI uses the default in variables.tf.
 
-# Optional overrides:
-# resource_group_name       = "digital-twin-rg"
+# Optional overrides (default RG name is {project_name}-{environment}-rg, e.g. digitaltwin-dev-rg):
+# resource_group_name       = "my-custom-rg"
 # Example regions (slugs):
 # location = "eastus"
 # location = "westeurope"

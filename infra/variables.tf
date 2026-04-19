@@ -5,8 +5,9 @@ variable "subscription_id" {
 
 variable "resource_group_name" {
   type        = string
-  description = "Name of the resource group for all Digital Twin resources."
-  default     = "digital-twin-rg"
+  nullable    = true
+  default     = null
+  description = "Resource group name for this stack. Leave null to use \"{project_name}-{environment}-rg\" (default: digitaltwin-dev-rg). Set explicitly if you import or must reuse a specific name."
 }
 
 variable "location" {

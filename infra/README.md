@@ -122,7 +122,7 @@ Because **`AZURE_STORAGE_ACCOUNT_NAME`** and **`AZURE_FUNCTION_APP_NAME`** descr
    terraform output -raw function_app_name
    ```
 
-   Or with CLI (use your real resource group; default in `variables.tf` is **`digital-twin-rg`** unless you overrode `resource_group_name` in `terraform.tfvars`):
+   Or with CLI (use your real resource group; default when `resource_group_name` is unset is **`{project_name}-{environment}-rg`**, e.g. **`digitaltwin-dev-rg`**):
 
    ```bash
    RG="digital-twin-rg"

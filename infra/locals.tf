@@ -1,4 +1,6 @@
 locals {
+  resource_group_name_effective = coalesce(var.resource_group_name, "${var.project_name}-${var.environment}-rg")
+
   # Linux consumption Functions use Y1; dedicated SKUs (B1, EP1, …) allow always_on.
   functions_is_consumption_y1 = var.functions_service_plan_sku_name == "Y1"
 
