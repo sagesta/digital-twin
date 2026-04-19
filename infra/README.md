@@ -87,14 +87,18 @@ GitHub Actions **does not keep** `terraform.tfstate` between jobs (and state fil
 
 **Fix:** store state in Azure Storage. `infra/backend.tf` declares an `azurerm` backend; configuration is passed at `terraform init` (never commit access keys).
 
-1. **Create state storage** (once), from repo root in Bash/WSL (set a **globally unique** storage account name):
+1. **Create state storage** (once), from repo root in Bash/WSL (set a **globally unique** storage account name).
+
+   Prefer this form so it still runs if Windows saved the script with **CRLF** (fixes **`bash\r: No such file`** when using `./script.sh`):
 
    ```bash
    export TF_STATE_STORAGE_ACCOUNT="tfstate$(openssl rand -hex 4)"
-   ./infra/scripts/bootstrap-remote-state.sh
+   sed 's/\r$//' ./infra/scripts/bootstrap-remote-state.sh | bash
    ```
 
-   If WSL reports **`bash\r: No such file`**, strip CRs once: **`sed -i 's/\r$//' ./infra/scripts/*.sh`**. The repo uses **`.gitattributes`** so future checkouts of `*.sh` use LF.
+   Optional: in this repo run **`git config core.autocrlf false`** so Git stops reintroducing CRLF on `/mnt/c/` checkouts (safe for Linux-oriented repos).
+
+   To fix scripts on disk once: **`sed -i 's/\r$//' ./infra/scripts/*.sh`**. The repo includes **`.gitattributes`** and **`.editorconfig`** so `*.sh` stay LF when possible.
 
 2. **GitHub Actions secrets** (repository **Settings → Secrets and variables → Actions**):
 

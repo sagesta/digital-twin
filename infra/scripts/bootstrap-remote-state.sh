@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# If ./bootstrap-remote-state.sh fails under WSL with bash\r: run from repo root:
+#   sed 's/\r$//' ./infra/scripts/bootstrap-remote-state.sh | bash
 # Optional Step: create Azure Storage for Terraform remote state and print backend.tf values.
 # Usage:
 #   export TF_STATE_RG="terraform-state-rg"
