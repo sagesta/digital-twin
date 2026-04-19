@@ -17,12 +17,18 @@
 # If you purged a soft-deleted OpenAI account and want the fixed name back:
 # openai_account_use_random_name_suffix = false
 
-# OpenAI gpt-4o tuning (defaults suit typical PAYG subscriptions):
-# openai_gpt4o_model_version      = "2024-11-20"
-# openai_deployment_scale_type    = "GlobalStandard" # try "Standard" if Azure rejects GlobalStandard
+# OpenAI (defaults: gpt-4o-mini + Standard scale; deployment name gpt-4o for app compatibility):
+# openai_deployment_name         = "gpt-4o"
+# openai_model_name              = "gpt-4o-mini"
+# openai_model_version           = "2024-07-18"
+# openai_deployment_scale_type   = "Standard"
 # openai_deployment_capacity      = 10
+# For full gpt-4o when your subscription allows it:
+# openai_model_name              = "gpt-4o"
+# openai_model_version           = "2024-11-20"
+# openai_deployment_scale_type   = "GlobalStandard"
 
-# Functions: B1 avoids Linux consumption (Y1) Dynamic VM quota issues; use Y1 to minimize cost if quota allows:
+# Functions: Y1 = consumption (default). B1 if you have Basic VM quota and need always_on:
 # functions_service_plan_sku_name = "B1"
 
 # openai_api_key is not required — Terraform creates OpenAI and outputs the key.

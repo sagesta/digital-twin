@@ -48,26 +48,38 @@ variable "openai_account_use_random_name_suffix" {
   default     = true
 }
 
-variable "openai_gpt4o_model_version" {
+variable "openai_deployment_name" {
   type        = string
-  description = "Model version string for the gpt-4o deployment (region-specific availability may vary)."
-  default     = "2024-11-20"
+  description = "Azure OpenAI deployment name (what clients pass as the model parameter). Default gpt-4o matches function-app defaults even when the underlying model is gpt-4o-mini."
+  default     = "gpt-4o"
+}
+
+variable "openai_model_name" {
+  type        = string
+  description = "Base model to deploy (e.g. gpt-4o-mini for broad subscription availability; gpt-4o if your subscription has access)."
+  default     = "gpt-4o-mini"
+}
+
+variable "openai_model_version" {
+  type        = string
+  description = "Model version string (region and model specific). For gpt-4o-mini, 2024-07-18 is widely available."
+  default     = "2024-07-18"
 }
 
 variable "openai_deployment_capacity" {
   type        = number
-  description = "Deployment capacity (thousands of tokens per minute for GlobalStandard). Start low (e.g. 10) on new subscriptions; raise after quota increases."
+  description = "Deployment capacity (TPM thousands for Standard / per docs for GlobalStandard). Start low on new subscriptions."
   default     = 10
 }
 
 variable "openai_deployment_scale_type" {
   type        = string
-  description = "Azure OpenAI deployment SKU name passed to the scale block (e.g. GlobalStandard for gpt-4o in many regions). Use Standard only if your region/model requires it."
-  default     = "GlobalStandard"
+  description = "Deployment scale type / SKU name. Standard works for gpt-4o-mini; gpt-4o often needs GlobalStandard in supported regions."
+  default     = "Standard"
 }
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan SKU for Azure Functions. Y1 is consumption (lowest cost but requires Dynamic VMs quota). B1 is a small dedicated plan and avoids consumption quota issues."
-  default     = "B1"
+  description = "Linux App Service plan for Functions. Y1 = consumption (no Basic VM quota). B1 = dedicated Basic (requires Basic VM regional quota; use if Y1 Dynamic VM quota is 0)."
+  default     = "Y1"
 }

@@ -17,13 +17,13 @@ resource "azurerm_cognitive_account" "openai" {
 }
 
 resource "azurerm_cognitive_deployment" "gpt4o" {
-  name                 = "gpt-4o"
+  name                 = var.openai_deployment_name
   cognitive_account_id = azurerm_cognitive_account.openai.id
 
   model {
     format  = "OpenAI"
-    name    = "gpt-4o"
-    version = var.openai_gpt4o_model_version
+    name    = var.openai_model_name
+    version = var.openai_model_version
   }
 
   scale {

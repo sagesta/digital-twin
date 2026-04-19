@@ -1,6 +1,6 @@
 # Digital Twin — Azure infrastructure (Terraform)
 
-This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2 AWS pattern on Azure: **Blob Storage** (static site + private memory), **Linux Python 3.11 Functions** (consumption), **Azure OpenAI** (`gpt-4o`), and optional **Azure Front Door** (`var.enable_azure_front_door`; keep `false` on Azure for Students).
+This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2 AWS pattern on Azure: **Blob Storage** (static site + private memory), **Linux Python 3.11 Functions** (consumption `Y1` by default), **Azure OpenAI** (defaults to **`gpt-4o-mini`** behind deployment name **`gpt-4o`** for broad availability), and optional **Azure Front Door** (`var.enable_azure_front_door`).
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2
    terraform apply
    ```
 
-   The **`azurerm_cognitive_deployment`** for `gpt-4o` often takes **10–15 minutes** the first time; the apply may sit in “creating” until Azure finishes provisioning.
+   The **`azurerm_cognitive_deployment`** step often takes **10–15 minutes** the first time; the apply may sit in “creating” until Azure finishes provisioning.
 
 5. Read outputs:
 
