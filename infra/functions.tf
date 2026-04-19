@@ -1,7 +1,7 @@
 resource "azurerm_service_plan" "functions" {
   name                = "${var.project_name}-${var.environment}-functions-plan"
   resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  location            = var.location
   os_type             = "Linux"
   sku_name            = "Y1"
 
@@ -11,7 +11,7 @@ resource "azurerm_service_plan" "functions" {
 resource "azurerm_linux_function_app" "main" {
   name                 = "${var.project_name}-${var.environment}-functions"
   resource_group_name  = azurerm_resource_group.main.name
-  location             = azurerm_resource_group.main.location
+  location             = var.location
   service_plan_id      = azurerm_service_plan.functions.id
   storage_account_name = azurerm_storage_account.main.name
   # Required by the Functions host for internal state; conversation memory uses managed identity + Blob API.

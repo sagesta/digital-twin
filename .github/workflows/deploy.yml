@@ -40,6 +40,16 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # Optional: set repository variable AZURE_LOCATION (e.g. westeurope) so deploys match
+      # management-group "allowed locations" policy. If unset, Terraform uses variables.tf default.
+      - name: Terraform location (Azure Policy)
+        run: |
+          LOC='${{ vars.AZURE_LOCATION }}'
+          if [ -n "$LOC" ]; then
+            echo "TF_VAR_location=$LOC" >> "$GITHUB_ENV"
+            echo "Using TF_VAR_location from AZURE_LOCATION."
+          fi
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.5

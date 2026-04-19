@@ -1,6 +1,9 @@
 # Copy to terraform.tfvars (gitignored) and fill in subscription_id.
 # subscription_id = "00000000-0000-0000-0000-000000000000"
 
+# GitHub Actions: set repository variable AZURE_LOCATION (e.g. westeurope) to match
+# Azure Policy "allowed locations"; if unset, CI uses the default in variables.tf.
+
 # Optional overrides:
 # resource_group_name       = "digital-twin-rg"
 # Azure for Students–friendly regions (slugs):

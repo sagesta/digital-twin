@@ -11,7 +11,7 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  description = "Azure region for all resources. Azure for Students commonly allows: eastus, westus, centralus, westeurope, southeastasia (use these slugs, not e.g. westus2). Confirm gpt-4o quota before apply."
+  description = "Azure region for every resource in this stack (resource group, storage, Functions, OpenAI). Must match subscription or management-group Azure Policy allowed locations (otherwise apply fails with 403 / RequestDisallowedByAzure). Azure for Students often allows eastus, westus, centralus, westeurope, southeastasia. Pick a region where Azure OpenAI is available for your offer. In GitHub Actions, set repository variable AZURE_LOCATION to override the default via TF_VAR_location."
   default     = "eastus"
 }
 
