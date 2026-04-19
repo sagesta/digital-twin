@@ -11,13 +11,13 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  description = "Azure region for every resource in this stack (resource group, storage, Functions, OpenAI). Must match subscription or management-group Azure Policy allowed locations (otherwise apply fails with 403 / RequestDisallowedByAzure). Azure for Students often allows eastus, westus, centralus, westeurope, southeastasia. Pick a region where Azure OpenAI is available for your offer. In GitHub Actions, set repository variable AZURE_LOCATION to override the default via TF_VAR_location."
+  description = "Azure region for every resource in this stack (resource group, storage, Functions, OpenAI). Must match management-group Azure Policy allowed locations when applicable. Pick a region where Azure OpenAI supports your model; GitHub Actions can set repository variable AZURE_LOCATION (maps to TF_VAR_location)."
   default     = "eastus"
 }
 
 variable "enable_azure_front_door" {
   type        = bool
-  description = "Provision Azure Front Door Standard. Set false on Azure for Students / Free Trial (Front Door is blocked). Use the storage static website URL when false."
+  description = "Provision Azure Front Door Standard. Set false for lowest cost or when the subscription blocks Front Door; use the storage static website URL when false."
   default     = false
 }
 
@@ -49,6 +49,18 @@ variable "openai_gpt4o_model_version" {
 
 variable "openai_deployment_capacity" {
   type        = number
-  description = "Tokens per minute (thousands) for Standard SKU gpt-4o deployment; raise if quota allows."
-  default     = 30
+  description = "Deployment capacity (thousands of tokens per minute for GlobalStandard). Start low (e.g. 10) on new subscriptions; raise after quota increases."
+  default     = 10
+}
+
+variable "openai_deployment_scale_type" {
+  type        = string
+  description = "Azure OpenAI deployment SKU name passed to the scale block (e.g. GlobalStandard for gpt-4o in many regions). Use Standard only if your region/model requires it."
+  default     = "GlobalStandard"
+}
+
+variable "functions_service_plan_sku_name" {
+  type        = string
+  description = "Linux App Service plan SKU for Azure Functions. Y1 is consumption (lowest cost but requires Dynamic VMs quota). B1 is a small dedicated plan and avoids consumption quota issues."
+  default     = "B1"
 }

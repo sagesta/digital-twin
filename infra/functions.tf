@@ -3,7 +3,7 @@ resource "azurerm_service_plan" "functions" {
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = var.functions_service_plan_sku_name
 
   tags = local.common_tags
 }
@@ -27,7 +27,7 @@ resource "azurerm_linux_function_app" "main" {
     application_stack {
       python_version = "3.11"
     }
-    always_on = false
+    always_on = !local.functions_is_consumption_y1
     cors {
       allowed_origins     = ["*"]
       support_credentials = false

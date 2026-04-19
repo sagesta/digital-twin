@@ -6,19 +6,20 @@
 
 # Optional overrides:
 # resource_group_name       = "digital-twin-rg"
-# Azure for Students–friendly regions (slugs):
-# location = "eastus"          # East US
-# location = "westus"        # West US
-# location = "centralus"    # Central US
-# location = "westeurope"   # West Europe
-# location = "southeastasia" # Southeast Asia
+# Example regions (slugs):
+# location = "eastus"
+# location = "westeurope"
 # Default in variables.tf is eastus if you omit this.
-# enable_azure_front_door   = false   # required false on Azure for Students / Free Trial
+# enable_azure_front_door   = false
 # project_name              = "digitaltwin"
 # environment               = "dev"
 
-# If gpt-4o apply fails on model version or capacity, adjust after checking quota:
-# openai_gpt4o_model_version   = "2024-11-20"
-# openai_deployment_capacity   = 30
+# OpenAI gpt-4o tuning (defaults suit typical PAYG subscriptions):
+# openai_gpt4o_model_version      = "2024-11-20"
+# openai_deployment_scale_type    = "GlobalStandard" # try "Standard" if Azure rejects GlobalStandard
+# openai_deployment_capacity      = 10
+
+# Functions: B1 avoids Linux consumption (Y1) Dynamic VM quota issues; use Y1 to minimize cost if quota allows:
+# functions_service_plan_sku_name = "B1"
 
 # openai_api_key is not required — Terraform creates OpenAI and outputs the key.
