@@ -54,8 +54,33 @@ jobs:
         with:
           terraform_version: 1.7.5
 
-      - name: Terraform Init
-        run: terraform init -input=false
+      # Without remote state, each job has empty state while Azure still holds resources → "already exists".
+      # Add secrets TF_BACKEND_RG, TF_BACKEND_STORAGE_ACCOUNT, TF_BACKEND_ACCESS_KEY (storage account key).
+      - name: Terraform Init (Azure remote state)
+        env:
+          TF_BACKEND_RG: ${{ secrets.TF_BACKEND_RG }}
+          TF_BACKEND_STORAGE_ACCOUNT: ${{ secrets.TF_BACKEND_STORAGE_ACCOUNT }}
+          TF_BACKEND_ACCESS_KEY: ${{ secrets.TF_BACKEND_ACCESS_KEY }}
+        run: |
+          set -euo pipefail
+          missing=
+          for v in TF_BACKEND_RG TF_BACKEND_STORAGE_ACCOUNT TF_BACKEND_ACCESS_KEY; do
+            eval "val=\${$v:-}"
+            if [ -z "${val}" ]; then missing="${missing} ${v}"; fi
+          done
+          if [ -n "${missing}" ]; then
+            echo "::error::Missing GitHub Actions secrets for Terraform remote state:${missing}"
+            echo "Create an Azure Storage account and container for state (infra/scripts/bootstrap-remote-state.sh),"
+            echo "then add secrets TF_BACKEND_RG, TF_BACKEND_STORAGE_ACCOUNT, TF_BACKEND_ACCESS_KEY."
+            echo "See infra/README.md section 'Terraform remote state (CI)'."
+            exit 1
+          fi
+          terraform init -input=false -reconfigure \
+            -backend-config="resource_group_name=${TF_BACKEND_RG}" \
+            -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=digital-twin.terraform.tfstate" \
+            -backend-config="access_key=${TF_BACKEND_ACCESS_KEY}"
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -input=false

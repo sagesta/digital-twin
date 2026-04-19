@@ -34,13 +34,20 @@ This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2
    az cognitiveservices usage list --location eastus -o table
    ```
 
-4. Initialize and apply:
+4. **Terraform remote state (do this before CI `deploy-infra`, and before your first `terraform init` in `infra/`):** create a storage account and container for state (see **`Terraform remote state (CI)`** below), then:
 
    ```bash
-   terraform init
+   terraform init -reconfigure \
+     -backend-config="resource_group_name=<STATE_RG>" \
+     -backend-config="storage_account_name=<STATE_STORAGE_NAME>" \
+     -backend-config="container_name=tfstate" \
+     -backend-config="key=digital-twin.terraform.tfstate" \
+     -backend-config="access_key=<STORAGE_ACCOUNT_KEY>"
    terraform plan
    terraform apply
    ```
+
+   Use the same values for GitHub Actions secrets **`TF_BACKEND_RG`**, **`TF_BACKEND_STORAGE_ACCOUNT`**, **`TF_BACKEND_ACCESS_KEY`** so CI reuses that state file.
 
    The **`azurerm_cognitive_deployment`** step often takes **10–15 minutes** the first time; the apply may sit in “creating” until Azure finishes provisioning.
 
@@ -74,17 +81,42 @@ az ad sp create-for-rbac --name "digital-twin-sp" \
 
 Workflows live at **`.github/workflows/deploy.yml`** in this repo root (paths `infra/**`, `frontend/`, `function-app/`).
 
-## GitHub Actions and Terraform state
+## Terraform remote state (CI)
 
-The `deploy-infra` job runs `terraform apply` in CI. **Without a remote backend**, each runner starts with an empty local state and the next apply can fail or attempt to recreate resources. Before relying on CI applies:
+GitHub Actions **does not keep** `terraform.tfstate` between jobs (and state files are gitignored). If CI runs `terraform apply` **without** a remote backend, every job starts with **empty state** while Azure still has the resource group and other resources → errors like **“already exists — import into state”**.
 
-1. Create an Azure Storage account + container for Terraform state.
-2. Uncomment and fill in `backend.tf`.
-3. Run `terraform init -migrate-state` locally once.
+**Fix:** store state in Azure Storage. `infra/backend.tf` declares an `azurerm` backend; configuration is passed at `terraform init` (never commit access keys).
 
-Until then, prefer **`terraform apply` locally** and use the workflow for **app** deployment only, or enable the backend first.
+1. **Create state storage** (once), from repo root in Bash/WSL (set a **globally unique** storage account name):
 
-To provision state storage in Azure and get exact `terraform init -migrate-state` flags, run **[`scripts/bootstrap-remote-state.sh`](scripts/bootstrap-remote-state.sh)** (set `TF_STATE_STORAGE_ACCOUNT` to a globally unique alphanumeric name first).
+   ```bash
+   export TF_STATE_STORAGE_ACCOUNT="tfstate$(openssl rand -hex 4)"
+   ./infra/scripts/bootstrap-remote-state.sh
+   ```
+
+2. **GitHub Actions secrets** (repository **Settings → Secrets and variables → Actions**):
+
+   | Secret | Value |
+   | --- | --- |
+   | `TF_BACKEND_RG` | Resource group that holds the state storage account (e.g. `terraform-state-rg` from the script) |
+   | `TF_BACKEND_STORAGE_ACCOUNT` | Storage account name |
+   | `TF_BACKEND_ACCESS_KEY` | A storage account key (`az storage account keys list ...`) |
+
+3. **Local machine:** use the same `terraform init -reconfigure ... -backend-config=...` line as in **One-time local setup** so your laptop and CI share one state file. If you already have a **local** `terraform.tfstate` from before enabling the backend, run **`terraform init -migrate-state`** once with the same `-backend-config` arguments so that state is copied to the blob instead of starting empty.
+
+**Destroy everything in Azure (does not go through Git):** from `infra/` after `terraform init` with the same backend:
+
+```bash
+terraform destroy -input=false
+```
+
+Or delete the stack resource group only:
+
+```bash
+az group delete --name digitaltwin-dev-rg --yes --no-wait
+```
+
+If you delete the group manually, run **`terraform destroy`** anyway (or remove resources from state) so state matches reality.
 
 ## Scripted next steps (after `AZURE_*` credentials in GitHub)
 
@@ -94,7 +126,7 @@ With **`az login`** and **`terraform.tfvars`** in place:
 | --- | --- |
 | 1. First `terraform apply` (creates storage + function names) | **Bash/WSL:** `chmod +x scripts/*.sh && ./scripts/run-first-apply.sh` — **PowerShell:** `.\scripts\run-first-apply.ps1` |
 | 2. Push `AZURE_STORAGE_ACCOUNT_NAME` + `AZURE_FUNCTION_APP_NAME` to GitHub | **`gh auth login`** then `./scripts/set-github-secrets-from-outputs.sh` |
-| 3. Remote state (optional, before CI `deploy-infra` repeats) | `./scripts/bootstrap-remote-state.sh` then uncomment [`backend.tf`](backend.tf) and run `terraform init -migrate-state` as printed |
+| 3. Remote state (**required** for CI `deploy-infra`) | `./infra/scripts/bootstrap-remote-state.sh` then add `TF_BACKEND_*` secrets and use the same `terraform init -reconfigure ...` locally |
 
 ## GitHub secrets
 
@@ -102,6 +134,9 @@ With **`az login`** and **`terraform.tfvars`** in place:
 | --- | --- |
 | `AZURE_CREDENTIALS` | JSON from `az ad sp create-for-rbac --sdk-auth` |
 | `AZURE_SUBSCRIPTION_ID` | Same subscription as Terraform; passed as `TF_VAR_subscription_id` in CI |
+| `TF_BACKEND_RG` | Resource group containing the Terraform state storage account |
+| `TF_BACKEND_STORAGE_ACCOUNT` | Storage account name for remote state |
+| `TF_BACKEND_ACCESS_KEY` | Storage account key for `terraform init` (backend access) |
 | `AZURE_STORAGE_ACCOUNT_NAME` | From `terraform output storage_account_name` |
 | `AZURE_FUNCTION_APP_NAME` | From `terraform output function_app_name` |
 | `OPENAI_API_KEY` | Optional for workflows; Terraform already sets `AZURE_OPENAI_*` on the Function App. Use this secret for other jobs or local tooling if you want parity with the printed primary key |
@@ -113,7 +148,7 @@ With **`az login`** and **`terraform.tfvars`** in place:
 Because **`AZURE_STORAGE_ACCOUNT_NAME`** and **`AZURE_FUNCTION_APP_NAME`** describe resources that **Terraform creates**, you fill them **after the first successful apply** (local or CI):
 
 1. **Before or on first push:** In GitHub → **Settings → Secrets and variables → Actions**, add at least **`AZURE_CREDENTIALS`** and **`AZURE_SUBSCRIPTION_ID`**. These do not depend on Azure resources existing yet.
-2. **Create Azure resources:** Run **`terraform apply`** from `infra/` on your machine, **or** push a change under `infra/**` so the **`deploy-infra`** workflow runs (if remote state is configured; see above).
+2. **Create Azure resources:** Run **`terraform apply`** from `infra/` on your machine, **or** push a change under `infra/**` so the **`deploy-infra`** workflow runs (**requires `TF_BACKEND_*` secrets** so state persists).
 3. **After resources exist:** Read names from Terraform (or Azure CLI) and add the remaining secrets — still only in GitHub, not in Git:
 
    ```bash
@@ -125,7 +160,7 @@ Because **`AZURE_STORAGE_ACCOUNT_NAME`** and **`AZURE_FUNCTION_APP_NAME`** descr
    Or with CLI (use your real resource group; default when `resource_group_name` is unset is **`{project_name}-{environment}-rg`**, e.g. **`digitaltwin-dev-rg`**):
 
    ```bash
-   RG="digital-twin-rg"
+   RG="digitaltwin-dev-rg"
    az storage account list -g "$RG" --query "[].name" -o tsv
    az functionapp list -g "$RG" --query "[].name" -o tsv
    ```
@@ -144,4 +179,4 @@ Resources follow `project-environment-type` with lowercase letters, numbers, and
 
 ## Remote state template
 
-See `backend.tf` (commented `azurerm` backend). Uncomment and set your state storage account details when ready.
+See [`backend.tf`](backend.tf): empty `azurerm` backend; pass all settings at **`terraform init`** (see above).
