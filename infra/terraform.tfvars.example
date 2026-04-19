@@ -1,0 +1,15 @@
+# Copy to terraform.tfvars (gitignored) and fill in subscription_id.
+# subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# Optional overrides:
+# resource_group_name       = "digital-twin-rg"
+# location                  = "eastus"
+# enable_azure_front_door   = false   # required false on Azure for Students / Free Trial
+# project_name              = "digitaltwin"
+# environment               = "dev"
+
+# If gpt-4o apply fails on model version or capacity, adjust after checking quota:
+# openai_gpt4o_model_version   = "2024-11-20"
+# openai_deployment_capacity   = 30
+
+# openai_api_key is not required — Terraform creates OpenAI and outputs the key.
