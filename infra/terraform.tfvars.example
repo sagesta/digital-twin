@@ -14,6 +14,9 @@
 # project_name              = "digitaltwin"
 # environment               = "dev"
 
+# If you purged a soft-deleted OpenAI account and want the fixed name back:
+# openai_account_use_random_name_suffix = false
+
 # OpenAI gpt-4o tuning (defaults suit typical PAYG subscriptions):
 # openai_gpt4o_model_version      = "2024-11-20"
 # openai_deployment_scale_type    = "GlobalStandard" # try "Standard" if Azure rejects GlobalStandard

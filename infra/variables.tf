@@ -41,6 +41,12 @@ variable "openai_api_key" {
   description = "Not required for apply: Terraform creates the Azure OpenAI account and wires its key into the Function App. Use terraform output to read the key for GitHub secrets or local tools. Leave null unless you add custom logic later."
 }
 
+variable "openai_account_use_random_name_suffix" {
+  type        = bool
+  description = "When true, the OpenAI Cognitive Services account name includes a stable random suffix to avoid 409 FlagMustBeSetForRestore if Azure still holds a soft-deleted account with the same base name. The azurerm provider has no restore flag on this resource; set false only after purging or restoring the deleted account in Azure."
+  default     = true
+}
+
 variable "openai_gpt4o_model_version" {
   type        = string
   description = "Model version string for the gpt-4o deployment (region-specific availability may vary)."

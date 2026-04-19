@@ -1,5 +1,7 @@
 resource "azurerm_cognitive_account" "openai" {
-  name                = "${var.project_name}-${var.environment}-openai"
+  # Account name must be globally unique. A soft-deleted account with the same name causes
+  # 409 FlagMustBeSetForRestore on create; Terraform azurerm has no `restore` on this resource.
+  name = var.openai_account_use_random_name_suffix ? "${var.project_name}-${var.environment}-openai-${random_id.openai_account.hex}" : "${var.project_name}-${var.environment}-openai"
   location            = var.location
   resource_group_name = azurerm_resource_group.main.name
   kind                = "OpenAI"
