@@ -94,6 +94,8 @@ GitHub Actions **does not keep** `terraform.tfstate` between jobs (and state fil
    ./infra/scripts/bootstrap-remote-state.sh
    ```
 
+   If WSL reports **`bash\r: No such file`**, strip CRs once: **`sed -i 's/\r$//' ./infra/scripts/*.sh`**. The repo uses **`.gitattributes`** so future checkouts of `*.sh` use LF.
+
 2. **GitHub Actions secrets** (repository **Settings → Secrets and variables → Actions**):
 
    | Secret | Value |

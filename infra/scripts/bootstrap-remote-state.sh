@@ -6,8 +6,7 @@
 #   export TF_STATE_LOCATION="eastus"                      # optional (use a Students-allowed region slug)
 #   ./scripts/bootstrap-remote-state.sh
 #
-# Then uncomment backend.tf, fill in the printed values, and from infra/ run:
-#   terraform init -migrate-state -input=false
+# Then configure terraform init -backend-config=... (see infra/README.md) and GitHub TF_BACKEND_* secrets.
 set -euo pipefail
 
 TF_STATE_RG="${TF_STATE_RG:-terraform-state-rg}"
@@ -44,17 +43,21 @@ az storage container create \
   --output none
 
 echo ""
-echo "=== Uncomment backend.tf and use: ==="
+echo "=== GitHub Actions secrets (TF_BACKEND_*) and local terraform init: ==="
+echo "TF_BACKEND_RG                 = $TF_STATE_RG"
+echo "TF_BACKEND_STORAGE_ACCOUNT    = $TF_STATE_STORAGE_ACCOUNT"
+echo "TF_BACKEND_ACCESS_KEY         = <use output of: az storage account keys list -g $TF_STATE_RG -n $TF_STATE_STORAGE_ACCOUNT>"
+echo ""
 echo "resource_group_name  = \"$TF_STATE_RG\""
 echo "storage_account_name = \"$TF_STATE_STORAGE_ACCOUNT\""
 echo "container_name       = \"$CONTAINER\""
 echo "key                  = \"$STATE_KEY\""
 echo ""
-echo "Then from infra/:"
-echo "  terraform init -migrate-state -input=false -reconfigure \\"
+echo "From infra/:"
+echo "  terraform init -input=false -reconfigure \\"
 echo "    -backend-config=\"resource_group_name=$TF_STATE_RG\" \\"
 echo "    -backend-config=\"storage_account_name=$TF_STATE_STORAGE_ACCOUNT\" \\"
 echo "    -backend-config=\"container_name=$CONTAINER\" \\"
-echo "    -backend-config=\"key=$STATE_KEY\""
+echo "    -backend-config=\"key=$STATE_KEY\" \\"
+echo "    -backend-config=\"access_key=<STORAGE_KEY>\""
 echo ""
-echo "Or store access_key in ARM_ACCESS_KEY env var for backend auth (see Terraform azurerm backend docs)."

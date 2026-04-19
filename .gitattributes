@@ -1,0 +1,2 @@
+# WSL/Linux shebangs break if *.sh are checked out with CRLF (error: 'bash\r': No such file)
+*.sh text eol=lf
