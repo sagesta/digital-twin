@@ -117,7 +117,7 @@ jobs:
       - name: Upload static site to '$web'
         uses: azure/CLI@v2
         with:
-          azcliversion: azure-cli
+          azcliversion: latest
           inlineScript: |
             az storage blob upload-batch \
               --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}" \
