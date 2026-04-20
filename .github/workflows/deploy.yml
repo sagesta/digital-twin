@@ -114,6 +114,21 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Check deploy secrets (storage + function app names)
+        env:
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_FUNCTION_APP_NAME: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AZURE_STORAGE_ACCOUNT_NAME:-}" ]; then
+            echo "::error::Missing GitHub secret AZURE_STORAGE_ACCOUNT_NAME. After infra apply: cd infra && terraform output -raw storage_account_name"
+            exit 1
+          fi
+          if [ -z "${AZURE_FUNCTION_APP_NAME:-}" ]; then
+            echo "::error::Missing GitHub secret AZURE_FUNCTION_APP_NAME. After infra apply: terraform output -raw function_app_name"
+            exit 1
+          fi
+
       - name: Upload static site to '$web'
         uses: azure/CLI@v2
         with:
