@@ -20,7 +20,7 @@
 # OpenAI (defaults: gpt-4o-mini + Standard scale; deployment name gpt-4o for app compatibility):
 # openai_deployment_name         = "gpt-4o"
 # openai_model_name              = "gpt-4o-mini"
-# openai_model_version           = "2024-07-18"
+# openai_model_version           = "2024-08-06"
 # openai_deployment_scale_type   = "Standard"
 # openai_deployment_capacity      = 10
 # For full gpt-4o when your subscription allows it:

@@ -62,8 +62,8 @@ variable "openai_model_name" {
 
 variable "openai_model_version" {
   type        = string
-  description = "Model version string (region and model specific). For gpt-4o-mini, 2024-07-18 is widely available."
-  default     = "2024-07-18"
+  description = "Model version string (region and model specific). Use a non-retired version for openai_model_name (see Azure OpenAI models doc); 2024-07-18 was retired for gpt-4o-mini."
+  default     = "2024-08-06"
 }
 
 variable "openai_deployment_capacity" {
@@ -80,6 +80,6 @@ variable "openai_deployment_scale_type" {
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan for Functions. Y1 = consumption (no Basic VM quota). B1 = dedicated Basic (requires Basic VM regional quota; use if Y1 Dynamic VM quota is 0)."
-  default     = "Y1"
+  description = "Linux App Service plan for Functions. Y1 = consumption (needs Dynamic VM quota). B1 = Basic dedicated; P0v3 = Premium v3 smallest (often works when Dynamic and Basic VM quotas are 0). Request quota in Azure Portal if all SKUs fail."
+  default     = "P0v3"
 }
