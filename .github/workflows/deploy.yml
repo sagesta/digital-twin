@@ -50,6 +50,15 @@ jobs:
             echo "Using TF_VAR_location from AZURE_LOCATION."
           fi
 
+      # When App Service / OpenAI model deploy is blocked by quota, set repo variable PARTIAL_INFRA=true
+      # to apply storage + OpenAI account only (no plan / function / model deployment).
+      - name: Optional partial infra (quota-blocked subscriptions)
+        if: vars.PARTIAL_INFRA == 'true'
+        run: |
+          echo "TF_VAR_enable_linux_function_app=false" >> "$GITHUB_ENV"
+          echo "TF_VAR_enable_openai_model_deployment=false" >> "$GITHUB_ENV"
+          echo "Using PARTIAL_INFRA: no Function App or OpenAI model deployment in this apply."
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.5
@@ -114,7 +123,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Check deploy secrets (storage + function app names)
+      - name: Check deploy secrets (storage required; Functions optional)
+        id: deployctx
         env:
           AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
           AZURE_FUNCTION_APP_NAME: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
@@ -125,8 +135,10 @@ jobs:
             exit 1
           fi
           if [ -z "${AZURE_FUNCTION_APP_NAME:-}" ]; then
-            echo "::error::Missing GitHub secret AZURE_FUNCTION_APP_NAME. After infra apply: terraform output -raw function_app_name"
-            exit 1
+            echo "::warning::AZURE_FUNCTION_APP_NAME unset — skipping Function App package deploy. Set the secret after Functions exist in Terraform state."
+            echo "skip_functions=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip_functions=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload static site to '$web'
@@ -145,10 +157,12 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python dependencies for Functions
+        if: steps.deployctx.outputs.skip_functions != 'true'
         working-directory: function-app
         run: pip install -r requirements.txt
 
       - name: Deploy Azure Functions
+        if: steps.deployctx.outputs.skip_functions != 'true'
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}

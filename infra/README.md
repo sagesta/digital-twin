@@ -1,6 +1,6 @@
 # Digital Twin — Azure infrastructure (Terraform)
 
-This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2 AWS pattern on Azure: **Blob Storage** (static site + private memory), **Linux Python 3.11 Functions** (default dedicated plan **`S1`** when consumption/Premium/Basic quotas are unavailable; override **`Y1`** when quota allows), **Azure OpenAI** (defaults to **`gpt-4o`** + **`GlobalStandard`** + version **`2024-11-20`**), and optional **Azure Front Door** (`var.enable_azure_front_door`).
+This repo root is **`digital-twin/`** (standalone). Terraform mirrors the Week 2 AWS pattern on Azure: **Blob Storage** (static site + private memory), **Linux Python 3.11 Functions** (default **`EP1`**; disable with **`enable_linux_function_app = false`** when every App Service SKU shows quota **0**), **Azure OpenAI** account plus optional model deployment (**`enable_openai_model_deployment`**; capacity defaults to **1** to reduce **715** errors), and optional **Azure Front Door** (`var.enable_azure_front_door`). For CI on blocked subscriptions, set GitHub repository variable **`PARTIAL_INFRA=true`** so **`deploy-infra`** sets **`TF_VAR_enable_linux_function_app`** and **`TF_VAR_enable_openai_model_deployment`** to **false** (storage + OpenAI account only).
 
 ## Prerequisites
 

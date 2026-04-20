@@ -19,18 +19,18 @@ output "static_website_url" {
 }
 
 output "function_app_default_hostname" {
-  description = "Default Azure Functions hostname (append /api/<route> for HTTP triggers)."
-  value       = azurerm_linux_function_app.main.default_hostname
+  description = "Default Azure Functions hostname when enable_linux_function_app is true; otherwise null."
+  value       = var.enable_linux_function_app ? azurerm_linux_function_app.main[0].default_hostname : null
 }
 
 output "function_app_url" {
-  description = "Base URL for the Function App."
-  value       = "https://${azurerm_linux_function_app.main.default_hostname}"
+  description = "Base URL for the Function App when provisioned; otherwise null."
+  value       = var.enable_linux_function_app ? "https://${azurerm_linux_function_app.main[0].default_hostname}" : null
 }
 
 output "function_app_name" {
-  description = "Function App name (GitHub secret AZURE_FUNCTION_APP_NAME)."
-  value       = azurerm_linux_function_app.main.name
+  description = "Function App name for GitHub secret AZURE_FUNCTION_APP_NAME when provisioned; otherwise null."
+  value       = var.enable_linux_function_app ? azurerm_linux_function_app.main[0].name : null
 }
 
 output "openai_endpoint" {

@@ -1,4 +1,6 @@
 resource "azurerm_service_plan" "functions" {
+  count = var.enable_linux_function_app ? 1 : 0
+
   name                = "${var.project_name}-${var.environment}-functions-plan"
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
@@ -9,10 +11,12 @@ resource "azurerm_service_plan" "functions" {
 }
 
 resource "azurerm_linux_function_app" "main" {
+  count = var.enable_linux_function_app ? 1 : 0
+
   name                 = "${var.project_name}-${var.environment}-functions"
   resource_group_name  = azurerm_resource_group.main.name
   location             = var.location
-  service_plan_id      = azurerm_service_plan.functions.id
+  service_plan_id      = azurerm_service_plan.functions[0].id
   storage_account_name = azurerm_storage_account.main.name
   # Required by the Functions host for internal state; conversation memory uses managed identity + Blob API.
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
@@ -39,24 +43,27 @@ resource "azurerm_linux_function_app" "main" {
     FUNCTIONS_WORKER_RUNTIME         = "python"
     AZURE_OPENAI_ENDPOINT            = azurerm_cognitive_account.openai.endpoint
     AZURE_OPENAI_API_KEY             = azurerm_cognitive_account.openai.primary_access_key
-    AZURE_OPENAI_DEPLOYMENT         = azurerm_cognitive_deployment.gpt4o.name
+    AZURE_OPENAI_DEPLOYMENT          = var.enable_openai_model_deployment ? azurerm_cognitive_deployment.gpt4o[0].name : ""
     AZURE_STORAGE_ACCOUNT_URL        = azurerm_storage_account.main.primary_blob_endpoint
-    MEMORY_BLOB_CONTAINER             = local.memory_container_name
+    MEMORY_BLOB_CONTAINER              = local.memory_container_name
     PYTHON_ENABLE_WORKER_EXTENSIONS  = "1"
   }
 
   tags = local.common_tags
 
-  depends_on = [
-    azurerm_cognitive_deployment.gpt4o
-  ]
+  depends_on = concat(
+    [azurerm_cognitive_account.openai],
+    var.enable_openai_model_deployment ? [azurerm_cognitive_deployment.gpt4o[0]] : []
+  )
 }
 
 resource "azurerm_role_assignment" "function_memory_blob_contributor" {
+  count = var.enable_linux_function_app ? 1 : 0
+
   scope = "${azurerm_storage_account.main.id}/blobServices/default/containers/${azurerm_storage_container.memory.name}"
 
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.main[0].identity[0].principal_id
 
   depends_on = [
     azurerm_linux_function_app.main,

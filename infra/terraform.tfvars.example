@@ -1,6 +1,11 @@
 # Copy to terraform.tfvars (gitignored) and fill in subscription_id.
 # subscription_id = "00000000-0000-0000-0000-000000000000"
 
+# If App Service quotas are all zero (Y1/B1/S1/P0v3/EP1…), apply a minimal stack first:
+# enable_linux_function_app          = false
+# enable_openai_model_deployment     = false
+# In GitHub, set repository variable PARTIAL_INFRA=true on deploy-infra for the same effect.
+
 # GitHub Actions: set repository variable AZURE_LOCATION (e.g. westeurope) to match
 # Azure Policy "allowed locations"; if unset, CI uses the default in variables.tf.
 

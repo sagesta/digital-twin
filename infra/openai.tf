@@ -17,6 +17,8 @@ resource "azurerm_cognitive_account" "openai" {
 }
 
 resource "azurerm_cognitive_deployment" "gpt4o" {
+  count = var.enable_openai_model_deployment ? 1 : 0
+
   name                 = var.openai_deployment_name
   cognitive_account_id = azurerm_cognitive_account.openai.id
 

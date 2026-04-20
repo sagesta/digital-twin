@@ -22,6 +22,18 @@ variable "enable_azure_front_door" {
   default     = false
 }
 
+variable "enable_linux_function_app" {
+  type        = bool
+  description = "Provision Linux App Service plan + Function App + blob role assignment. Set false when App Service quotas are zero (Dynamic/Basic/Standard/Premium) until Azure increases limits; you still get storage + optional OpenAI account."
+  default     = true
+}
+
+variable "enable_openai_model_deployment" {
+  type        = bool
+  description = "Create the Azure OpenAI model deployment (gpt-4o / etc.). Set false to only create the Cognitive account so apply can succeed when model deployment fails (715 / quota); create deployment later in portal or re-enable and apply."
+  default     = true
+}
+
 variable "project_name" {
   type        = string
   description = "Short prefix used in resource names; lowercase letters, numbers, hyphens only where allowed."
@@ -68,8 +80,8 @@ variable "openai_model_version" {
 
 variable "openai_deployment_capacity" {
   type        = number
-  description = "Deployment capacity (TPM thousands). Lower if quota errors; raise after Azure increases limits."
-  default     = 10
+  description = "Deployment capacity (TPM thousands). Use 1 first if apply returns 715 / quota errors."
+  default     = 1
 }
 
 variable "openai_deployment_scale_type" {
@@ -80,6 +92,6 @@ variable "openai_deployment_scale_type" {
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan SKU. Subscriptions with 0 quota for Y1 (Dynamic), B1 (Basic), and P0v3 (Premium0V3) often still allow S1 (Standard). Override with EP1/Y1 after quota increases."
-  default     = "S1"
+  description = "Linux App Service plan SKU (only when enable_linux_function_app is true). EP1 = Elastic Premium (different quota than Y1/B1/S1/P0v3). If all SKUs show limit 0, set enable_linux_function_app = false and request quota in Azure Portal."
+  default     = "EP1"
 }
