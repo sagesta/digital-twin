@@ -50,11 +50,6 @@ resource "azurerm_linux_function_app" "main" {
   }
 
   tags = local.common_tags
-
-  depends_on = concat(
-    [azurerm_cognitive_account.openai],
-    var.enable_openai_model_deployment ? [azurerm_cognitive_deployment.gpt4o[0]] : []
-  )
 }
 
 resource "azurerm_role_assignment" "function_memory_blob_contributor" {
