@@ -30,8 +30,8 @@ variable "enable_linux_function_app" {
 
 variable "enable_openai_model_deployment" {
   type        = bool
-  description = "Create the Azure OpenAI model deployment (gpt-4o / etc.). Set false to only create the Cognitive account so apply can succeed when model deployment fails (715 / quota); create deployment later in portal or re-enable and apply."
-  default     = true
+  description = "Create the Azure OpenAI model deployment (gpt-4o / etc.). Default false so apply succeeds when Azure returns 715 / quota; create deployment in portal or set true and re-apply when access is ready."
+  default     = false
 }
 
 variable "project_name" {
@@ -92,6 +92,6 @@ variable "openai_deployment_scale_type" {
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan SKU (only when enable_linux_function_app is true). Default Y1 = consumption (dev/test; no always_on). Use B1/S1/P0v3/EP1 for dedicated or production-style (always_on, VNet, longer runs)."
-  default     = "Y1"
+  description = "Linux App Service plan SKU (only when enable_linux_function_app is true). Default B1 = smallest dedicated Linux plan for dev (uses Basic quota, not Dynamic VMs). Y1 = consumption when you have Dynamic VM quota (no always_on). If every SKU is limit 0, set enable_linux_function_app = false or PARTIAL_INFRA in CI."
+  default     = "B1"
 }

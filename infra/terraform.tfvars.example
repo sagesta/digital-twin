@@ -33,8 +33,10 @@
 # openai_deployment_scale_type   = "Standard"
 # openai_model_version           = "<see az cognitiveservices account list-models>"
 
-# Functions: S1 default when Y1/B1/P0v3 quotas are 0; override after quota increase:
-# Default is Y1 (consumption). For production-style hosting:
+# Functions: default B1 (Basic dedicated). Y1 = consumption (requires Dynamic VM quota).
+# functions_service_plan_sku_name = "Y1"
 # functions_service_plan_sku_name = "EP1"
+# Opt in when OpenAI can deploy gpt-4o (default is account only, no deployment):
+# enable_openai_model_deployment = true
 
 # openai_api_key is not required — Terraform creates OpenAI and outputs the key.

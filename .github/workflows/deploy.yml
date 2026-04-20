@@ -50,8 +50,8 @@ jobs:
             echo "Using TF_VAR_location from AZURE_LOCATION."
           fi
 
-      # When App Service / OpenAI model deploy is blocked by quota, set repo variable PARTIAL_INFRA=true
-      # to apply storage + OpenAI account only (no plan / function / model deployment).
+      # When App Service (Dynamic for Y1, Elastic for EP1, Basic for B1…) or OpenAI model deploy fails,
+      # set repo variable PARTIAL_INFRA=true to apply storage + OpenAI account only (no plan / function).
       - name: Optional partial infra (quota-blocked subscriptions)
         if: vars.PARTIAL_INFRA == 'true'
         run: |
