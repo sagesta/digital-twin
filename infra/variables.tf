@@ -50,36 +50,36 @@ variable "openai_account_use_random_name_suffix" {
 
 variable "openai_deployment_name" {
   type        = string
-  description = "Azure OpenAI deployment name (what clients pass as the model parameter). Default gpt-4o matches function-app defaults even when the underlying model is gpt-4o-mini."
+  description = "Azure OpenAI deployment name (what clients pass as the model parameter). Default matches openai_model_name for clarity."
   default     = "gpt-4o"
 }
 
 variable "openai_model_name" {
   type        = string
-  description = "Base model to deploy (e.g. gpt-4o-mini for broad subscription availability; gpt-4o if your subscription has access)."
-  default     = "gpt-4o-mini"
+  description = "Base model to deploy. gpt-4o + GlobalStandard is widely available; use gpt-4o-mini + Standard only where your region supports that combo (see Azure models doc)."
+  default     = "gpt-4o"
 }
 
 variable "openai_model_version" {
   type        = string
-  description = "Model version string (region and model specific). Use a non-retired version for openai_model_name (see Azure OpenAI models doc); 2024-07-18 was retired for gpt-4o-mini."
-  default     = "2024-08-06"
+  description = "Model version (must match openai_model_name and openai_deployment_scale_type). gpt-4o with GlobalStandard commonly uses 2024-11-20."
+  default     = "2024-11-20"
 }
 
 variable "openai_deployment_capacity" {
   type        = number
-  description = "Deployment capacity (TPM thousands for Standard / per docs for GlobalStandard). Start low on new subscriptions."
+  description = "Deployment capacity (TPM thousands). Lower if quota errors; raise after Azure increases limits."
   default     = 10
 }
 
 variable "openai_deployment_scale_type" {
   type        = string
-  description = "Deployment scale type / SKU name. Standard works for gpt-4o-mini; gpt-4o often needs GlobalStandard in supported regions."
-  default     = "Standard"
+  description = "Deployment SKU: GlobalStandard for gpt-4o in most regions; Standard for regional mini deployments where supported."
+  default     = "GlobalStandard"
 }
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan for Functions. Y1 = consumption (needs Dynamic VM quota). B1 = Basic dedicated; P0v3 = Premium v3 smallest (often works when Dynamic and Basic VM quotas are 0). Request quota in Azure Portal if all SKUs fail."
-  default     = "P0v3"
+  description = "Linux App Service plan SKU. Subscriptions with 0 quota for Y1 (Dynamic), B1 (Basic), and P0v3 (Premium0V3) often still allow S1 (Standard). Override with EP1/Y1 after quota increases."
+  default     = "S1"
 }
