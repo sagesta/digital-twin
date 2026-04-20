@@ -92,6 +92,6 @@ variable "openai_deployment_scale_type" {
 
 variable "functions_service_plan_sku_name" {
   type        = string
-  description = "Linux App Service plan SKU (only when enable_linux_function_app is true). EP1 = Elastic Premium (different quota than Y1/B1/S1/P0v3). If all SKUs show limit 0, set enable_linux_function_app = false and request quota in Azure Portal."
-  default     = "EP1"
+  description = "Linux App Service plan SKU (only when enable_linux_function_app is true). Default Y1 = consumption (dev/test; no always_on). Use B1/S1/P0v3/EP1 for dedicated or production-style (always_on, VNet, longer runs)."
+  default     = "Y1"
 }

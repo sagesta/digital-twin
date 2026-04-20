@@ -34,6 +34,7 @@
 # openai_model_version           = "<see az cognitiveservices account list-models>"
 
 # Functions: S1 default when Y1/B1/P0v3 quotas are 0; override after quota increase:
-# functions_service_plan_sku_name = "Y1"
+# Default is Y1 (consumption). For production-style hosting:
+# functions_service_plan_sku_name = "EP1"
 
 # openai_api_key is not required — Terraform creates OpenAI and outputs the key.
